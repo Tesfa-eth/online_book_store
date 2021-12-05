@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 style="text-align:center; color: darkolivegreen;">{% block title %} Register{% endblock %}</h1>
+
+    <form method="POST" action="">
+        {{ form.hidden_tag() }} 
+        {{ form.username }} <br> <br>
+        {{ form.password }} <br> <br>
+        {{ form.submit }} <br> <br>
+    </form>
+    
+{% endblock %}
