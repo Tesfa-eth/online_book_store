@@ -33,13 +33,21 @@ def load_user(user_id):
 class User(db.Model, UserMixin): # creating the table
     """User table with user name and hashed password colums"""
     id = db.Column(db.Integer, primary_key=True)
+    firstname = db.Column(db.String(20), nullable=True, unique=False)
+    lastname = db.Column(db.String(20), nullable=True, unique=False)
     username = db.Column(db.String(20), nullable=False, unique=True)
     password = db.Column(db.String(80), nullable=False)
 
 
 class RegisterForm(FlaskForm):
+    firstname = StringField(validators=[InputRequired(), Length(min=4,max=20)],
+    render_kw={"placeholder": "First name"})
+
+    lastname = StringField(validators=[InputRequired(), Length(min=4,max=20)],
+    render_kw={"placeholder": "Last name"})
+
     username = StringField(validators=[InputRequired(), Length(min=4,max=20)],
-    render_kw={"placeholder": "Enter username here"})
+    render_kw={"placeholder": "Enter username/email here"})
 
     password = PasswordField(validators=[InputRequired(), Length(min=4,max=20)],
     render_kw={"placeholder": "Password"})
@@ -48,7 +56,6 @@ class RegisterForm(FlaskForm):
 
     def validate_username(self, username):
         #Checks if there is the username already exists
-        # the error is here!
         existing_username = User.query.filter_by(username=username.data).first()
         if existing_username:
             #print('existing user name') #debug
@@ -58,7 +65,7 @@ class RegisterForm(FlaskForm):
             )
 class LoginForm(FlaskForm):
     username = StringField(validators=[InputRequired(), Length(min=4,max=20)],
-    render_kw={"placeholder": "Username"})
+    render_kw={"placeholder": "Username/email"})
 
     password = PasswordField(validators=[InputRequired(), Length(min=4,max=20)],
     render_kw={"placeholder": "Password"})
@@ -79,10 +86,12 @@ def signup():
         print("validating")
         hashed_password = bcrypt.generate_password_hash(form.password.data)
         # get the form
-        new_user = User(username=form.username.data, password=hashed_password)
+        print('creating table')
+        new_user = User(firstname=form.firstname.data, lastname=form.lastname.data,username=form.username.data, password=hashed_password)
         db.create_all() # create the table
         db.session.add(new_user)
         db.session.commit()
+        print('table created')
         #print(new_user.query.all()) -- debug
         #print(User.query.filter_by(username = 'test1').all())
         flash('Successfully Registered!')
@@ -125,7 +134,11 @@ def dashboard():
     # object username
     #print(load_user(user_id_print).username) -- gives me the id and username of logged person
     #market = SampleMarket.query.all()
+    user = User.query.filter_by(id=global_user_id).first()
+    flash(f'Welcome back {user.firstname} {user.lastname}!!!')
+    #print(user.firstname)
     return render_template('dashboard.html', username=global_username)
 
 if __name__ == '__main__':
+    db.create_all()
     app.run(debug=True)
