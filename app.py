@@ -128,7 +128,7 @@ def signup():
         # get the form
         print('creating table')
         new_user = User(firstname=form.firstname.data, lastname=form.lastname.data,username=form.username.data, password=hashed_password)
-        db.create_all() # create the table
+        #db.create_all() # create the table
         db.session.add(new_user)
         db.session.commit()
         print('table created')
@@ -225,7 +225,7 @@ def add_to_readingList(id):
     if id not in book_ids: # check if it already existes
         print("adding material")
         add_material_to_cart = ReadList(user_id=global_user_id, book_id=id)
-        db.create_all() # create the table
+        #db.create_all() # create the table
         db.session.add(add_material_to_cart)
         db.session.commit()
         print("added sucessfully!")
@@ -364,7 +364,7 @@ def addtoRlistFromSearch(isbn, book_title, book_subject):
     if isbn not in book_ids: # check if it already existes
         print("adding material")
         add_material_to_cart = ReadListSearch(user_id=global_user_id, isbn=isbn, title=book_title, subject=book_subject)
-        db.create_all() # create the table
+        #db.create_all() # create the table
         db.session.add(add_material_to_cart)
         db.session.commit()
         print("added sucessfully!")
