@@ -55,6 +55,13 @@ class ReadList(db.Model, UserMixin): # creating the table
     user_id = db.Column(db.Integer, nullable=False, unique=False)
     book_id = db.Column(db.Integer, nullable=False, unique=False)
 
+class ReadListSearch(db.Model, UserMixin): # creating the table
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, primary_key=False)
+    isbn = db.Column(db.String(80), nullable=False, unique=False)
+    title = db.Column(db.String(80), nullable=False, unique=False)
+    subject = db.Column(db.String(200), nullable=False, unique=False)
+
 # register and log in forms
 class RegisterForm(FlaskForm):
     firstname = StringField(validators=[InputRequired(), Length(min=4,max=20)],
@@ -186,6 +193,7 @@ def myreadinglist():
     #flash(f'Welcome back {user.firstname} {user.lastname}!!!')
     #print(user.firstname)
     readlist_object = ReadList.query.filter_by(user_id=global_user_id).all()
+    readlistSearch_object = ReadListSearch.query.filter_by(user_id=global_user_id).all()
     #print(cart_list)
     books_list = []
     #print(readlist_object)
@@ -193,11 +201,19 @@ def myreadinglist():
     #    #print(material.material_id)
         books_list.append(BookStore.query.filter_by(id=books.book_id).first())
 
-    return render_template('myreadinglist.html', username=global_username, books_list=books_list)
+    books_list_search = []
+    #print(readlistSearch_object, 'readlistSearch object')
+
+    for books in readlistSearch_object:
+        #print(books.isbn)
+        books_list_search.append(ReadListSearch.query.filter_by(isbn=books.isbn).first())
+    print(books_list_search)
+    return render_template('myreadinglist.html', username=global_username, books_list=books_list, books_list_search=books_list_search)
 
 
 
 @app.route('/<int:id>/addtoreadinglist', methods=('POST',))
+@login_required
 def add_to_readingList(id):
     #print(id, 'book id')
     #print('something gioing on here')
@@ -219,6 +235,7 @@ def add_to_readingList(id):
     return redirect(url_for('dashboard'))
 
 @app.route('/<int:id>/remove', methods=('POST',))
+@login_required
 def remove_from_readinglist(id):
     print(id, "id to remove")
     ReadList.query.filter(ReadList.user_id == global_user_id, ReadList.book_id == id).delete()
@@ -280,14 +297,19 @@ def clean_data(data, i):
     return book_title, author_names, publish_year_first, isbn, subject
 
 def get_url(isbn):
-    try:
-        img_url = 'https://covers.openlibrary.org/b/isbn/' + str(isbn) + '-L.jpg'
-    except:
+    if isbn:
+        try:
+            img_url = 'https://covers.openlibrary.org/b/isbn/' + str(isbn) + '-L.jpg'
+        except:
+            img_url = 'https://leadershiftinsights.com/wp-content/uploads/2019/07/no-book-cover-available.jpg'
+    else:
         img_url = 'https://leadershiftinsights.com/wp-content/uploads/2019/07/no-book-cover-available.jpg'
     return img_url
 
 @app.route('/searchbookBtn', methods=('POST',))
+@login_required
 def searchbookBtn():
+    global list_json, result_count
     #print(id, 'book id')
     #global store
     if request.method == 'GET':
@@ -308,11 +330,7 @@ def searchbookBtn():
     #print(response_data)
     for i in range(result_count):
         book_title, author_names, publish_year_first, isbn, subject = clean_data(response_data, i)
-        if isbn:
-            img_url = get_url(isbn)
-        else:
-            img_url = 'https://leadershiftinsights.com/wp-content/uploads/2019/07/no-book-cover-available.jpg'
-        
+        img_url = get_url(isbn)
         dict_store['book_title'] = book_title
         dict_store['author_names'] = author_names
         dict_store['publish_year_first'] = publish_year_first
@@ -331,27 +349,43 @@ def searchbookBtn():
     return render_template('searchbook.html', username=global_username, store=list_json, count=result_count)
 
 
-@app.route('/<isbn>/addtoRlistFromSearch', methods=('POST',))
-def addtoRlistFromSearch(isbn):
+@app.route('/<isbn>/<book_title>/<book_subject>/addtoRlistFromSearch', methods=('POST',))
+@login_required
+def addtoRlistFromSearch(isbn, book_title, book_subject):
     print(isbn, 'book isbn')
+    print(book_title, 'book title')
+    print(book_subject, 'book subject')
     #print('something gioing on here')
     #print(user_id_print, "user id")
     
-    """book_object = ReadList.query.filter_by(user_id=global_user_id).all()
+    book_object = ReadListSearch.query.filter_by(user_id=global_user_id).all()
     print(book_object, "book")
-    book_ids = list(map(lambda x: (x.book_id), book_object))
-    if id not in book_ids: # check if it already existes
+    book_ids = list(map(lambda x: (x.isbn), book_object))
+    if isbn not in book_ids: # check if it already existes
         print("adding material")
-        add_material_to_cart = ReadList(user_id=global_user_id, book_id=id)
+        add_material_to_cart = ReadListSearch(user_id=global_user_id, isbn=isbn, title=book_title, subject=book_subject)
         db.create_all() # create the table
         db.session.add(add_material_to_cart)
         db.session.commit()
         print("added sucessfully!")
         flash('Successfully added to cart!')
     else:
-        flash('The item is already in the cart!')"""
-    return redirect(url_for('dashboard'))
+        flash('The item is already in the cart!')
+    
+    return render_template('searchbook.html', username=global_username, store=list_json, count=result_count)
 
+
+@app.route('/<isbn>/removereadlinglistSearch', methods=('POST',))
+@login_required
+def remove_from_readinglistS(isbn):
+    print(isbn, "id to remove")
+    ReadListSearch.query.filter(ReadListSearch.user_id == global_user_id, ReadListSearch.isbn == isbn).delete()
+    db.session.commit()
+    
+    """for i in temp:
+        print(i.user_id)"""
+    flask("Removed  from your reading list successfully!")
+    return redirect(url_for('myreadinglist'))
 if __name__ == '__main__':
     db.create_all()
     app.run(debug=True)
