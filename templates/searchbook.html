@@ -1,0 +1,26 @@
+{% extends 'base_dashboard.html' %}
+
+{% block logout %}Log out{% endblock %}
+
+{% block content %}
+      <p style="color: darkorchid; text-decoration: darkslategrey; position:absolute; right: 90px;">{{username}}</p>
+    <h1 style="color:darkolivegreen;">{% block title %} Search book by title{% endblock %}</h1>
+    <hr>
+    <form action="{{ url_for('searchbookBtn') }}" method="POST">
+      <input type="text" placeholder="Search by title" name="searchedtitle">
+      <input type="submit" value="Search">
+    </form>
+    <p>Search results: {{count}}</p>
+    {% for book in store %}
+            <img src= "{{book['img_url']}}" alt="{{book['book_title']}}" style="width:200px;height:250px;" class="rounded float-block">
+            <div class="font-weight-light">Book title- {{ book['book_title'] }}</div>
+            <div class="font-weight-light">Subject: {{book['subject']}}</div>
+            <div class="font-weight-light">Cover image url: {{book['img_url']}}</div>
+            
+            <form action="{{ url_for('addtoRlistFromSearch', isbn=book['isbn']) }}" method="POST">
+              <input type="submit" value="Add to reading list"
+                      onclick="return confirm('Would you like to add to {{book.book_title}} your reading list?')">
+            </form>
+            <hr>
+    {% endfor %}
+{% endblock %}

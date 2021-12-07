@@ -1,6 +1,6 @@
 from enum import unique
 from typing import Reversible
-from flask import Flask, app, render_template, url_for, redirect
+from flask import Flask, app, render_template, url_for, redirect, request
 import flask
 from flask.helpers import flash
 from flask_login.utils import login_fresh
@@ -11,6 +11,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
 from flask_bcrypt import Bcrypt
+import requests
 
 app = Flask(__name__)
 db = SQLAlchemy(app)
@@ -25,6 +26,8 @@ login_manager.init_app(app)
 login_manager.login_view="login"
 
 global_username = ''
+store = ''
+count = 0
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -225,6 +228,129 @@ def remove_from_readinglist(id):
         print(i.user_id)"""
     return redirect(url_for('myreadinglist'))
 
+
+@app.route('/searchbook',methods=['GET', 'POST'])
+@login_required
+def searchbook():
+    # object username
+    #print(load_user(user_id_print).username) -- gives me the id and username of logged person
+    #books = BookStore.query.all()
+    #print(books)
+    #user = User.query.filter_by(id=global_user_id).first()
+    # remove the flash later
+    #flash(f'Welcome back {user.firstname} {user.lastname}!!!')
+    #print(user.firstname)
+    #readlist_object = ReadList.query.filter_by(user_id=global_user_id).all()
+    #print(cart_list)
+    #books_list = []
+    #print(readlist_object)
+    if store and count:
+        store1 = store
+        count1 = count
+    else:
+        store1 = ''
+        count1 = 0
+    
+    return render_template('searchbook.html', username=global_username, store=store1, count=count1)
+
+
+def clean_data(data, i):
+    #global book_title, author_names, publish_year_first, isbn, subject
+    try:
+        book_title = data['docs'][i]['title']
+    except:
+        book_title = 'no book title'
+    try:
+        author_names = data['docs'][i]['author_name']
+    except:
+        author_names = 'no author name'
+    try:
+        publish_year_first = data['docs'][i]['publish_year'][0]
+    except:
+        publish_year_first = 'no published date'
+    try: # some may not have isbn
+        isbn = data['docs'][i]['isbn'][1] # set this to empty string later
+    except:
+        isbn = ''
+    try: # some may not have subject
+        subject = data['docs'][0]['subject'][0] # can take as many as needed
+    except:
+        subject = 'No subject available'
+
+    return book_title, author_names, publish_year_first, isbn, subject
+
+def get_url(isbn):
+    try:
+        img_url = 'https://covers.openlibrary.org/b/isbn/' + str(isbn) + '-L.jpg'
+    except:
+        img_url = 'https://leadershiftinsights.com/wp-content/uploads/2019/07/no-book-cover-available.jpg'
+    return img_url
+
+@app.route('/searchbookBtn', methods=('POST',))
+def searchbookBtn():
+    #print(id, 'book id')
+    #global store
+    if request.method == 'GET':
+        return f"The URL /data is accessed directly. Try going to '/form' to submit form"
+    if request.method == 'POST':
+        form_data = request.form
+        searched_title = form_data['searchedtitle']
+        try:
+            response = requests.get("http://openlibrary.org/search.json?title=" + searched_title)
+            response_data = response.json()
+        except:
+            response_data = []
+        #return render_template('data.html',form_data = form_data)
+
+    list_json=[]
+    dict_store= {}
+    result_count = len(response_data['docs'])
+    #print(response_data)
+    for i in range(result_count):
+        book_title, author_names, publish_year_first, isbn, subject = clean_data(response_data, i)
+        if isbn:
+            img_url = get_url(isbn)
+        else:
+            img_url = 'https://leadershiftinsights.com/wp-content/uploads/2019/07/no-book-cover-available.jpg'
+        
+        dict_store['book_title'] = book_title
+        dict_store['author_names'] = author_names
+        dict_store['publish_year_first'] = publish_year_first
+        dict_store['isbn'] = isbn
+        dict_store['subject'] = subject
+        dict_store['img_url'] = img_url
+        list_json.append(dict_store)
+        dict_store = {}
+    
+    #print(response_data['docs'][0])
+    #print(response_data['docs'][0]['title'])
+    """for i in list_json:
+        print(i['isbn'])"""
+    
+    #print(isbn)
+    return render_template('searchbook.html', username=global_username, store=list_json, count=result_count)
+
+
+@app.route('/<isbn>/addtoRlistFromSearch', methods=('POST',))
+def addtoRlistFromSearch(isbn):
+    print(isbn, 'book isbn')
+    #print('something gioing on here')
+    #print(user_id_print, "user id")
+    
+    """book_object = ReadList.query.filter_by(user_id=global_user_id).all()
+    print(book_object, "book")
+    book_ids = list(map(lambda x: (x.book_id), book_object))
+    if id not in book_ids: # check if it already existes
+        print("adding material")
+        add_material_to_cart = ReadList(user_id=global_user_id, book_id=id)
+        db.create_all() # create the table
+        db.session.add(add_material_to_cart)
+        db.session.commit()
+        print("added sucessfully!")
+        flash('Successfully added to cart!')
+    else:
+        flash('The item is already in the cart!')"""
+    return redirect(url_for('dashboard'))
 
 if __name__ == '__main__':
     db.create_all()
