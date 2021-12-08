@@ -10,7 +10,8 @@
     <h1 style="color:darkolivegreen;">{% block title %} Online Book Store {% endblock %}</h1>
     <hr>
     
-    <h1>Tesfatsion's recommendations!</h1>
+    <h3>Tesfatsion's recommendations!</h3>
+    <hr>
     {% for book in books %}
             <img src= "{{book.url}}" alt="{{book.title}}" style="width:200px;height:250px;" class="rounded float-block">
             <div class="font-weight-light">Book title- {{ book.title }}</div>

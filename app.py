@@ -384,7 +384,7 @@ def remove_from_readinglistS(isbn):
     
     """for i in temp:
         print(i.user_id)"""
-    flask("Removed  from your reading list successfully!")
+    flash("Removed  from your reading list successfully!")
     return redirect(url_for('myreadinglist'))
 if __name__ == '__main__':
     db.create_all()
