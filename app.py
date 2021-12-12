@@ -1,7 +1,7 @@
 from enum import unique
 from typing import Reversible
 from flask import Flask, app, render_template, url_for, redirect, request
-import flask
+#import flask
 from flask.helpers import flash
 from flask_login.utils import login_fresh
 from flask_sqlalchemy import SQLAlchemy
@@ -99,22 +99,8 @@ class LoginForm(FlaskForm):
 @app.route('/')
 def index():
     """render index html"""
-    """# add to table BookStore
-    add_material = BookStore(title='The davinci code', description="The davinci code bla bla", url='https://www.bookstellyouwhy.com/pictures/53669.jpeg?v=1552765526 ')
-    #db.create_all() # create the table
-    db.session.add(add_material)
-    db.session.commit()
-    add_material = BookStore(title='Beloved', description="Beloved ba ba ba", url='https://upload.wikimedia.org/wikipedia/commons/6/6f/Beloved_%281987_1st_ed_dust_jacket_cover%29.jpg')
-    #db.create_all() # create the table
-    db.session.add(add_material)
-    db.session.commit()
-    add_material = BookStore(title='We are each others harvest', description="We are bla bla", url='https://epmgaa.media.clients.ellingtoncms.com/img/croppedphotos/2021/04/13/booksWe_Are_Each_Others_Harvest_t750x550.jpg?d885fc46c41745b3b5de550c70336c1b382931d2')
-    #db.create_all() # create the table
-    db.session.add(add_material)
-    db.session.commit()"""
-
     logout_user() # log out user if any on the session
-    print('done')
+    #print('done')
     print(current_user.is_authenticated)
     return render_template('index.html', auth=current_user.is_authenticated)
 
@@ -128,12 +114,10 @@ def signup():
         # get the form
         print('creating table')
         new_user = User(firstname=form.firstname.data, lastname=form.lastname.data,username=form.username.data, password=hashed_password)
-        #db.create_all() # create the table
+        db.create_all() # create the table
         db.session.add(new_user)
         db.session.commit()
-        print('table created')
-        #print(new_user.query.all()) -- debug
-        #print(User.query.filter_by(username = 'test1').all())
+        #print('table created')
         flash('Successfully Registered!')
         return redirect(url_for('login'))
     return render_template('signup.html', form=form)
@@ -176,22 +160,11 @@ def dashboard():
     books = BookStore.query.all()
     #print(books)
     user = User.query.filter_by(id=global_user_id).first()
-    # remove the flash later
-    #flash(f'Welcome back {user.firstname} {user.lastname}!!!')
-    #print(user.firstname)
     return render_template('dashboard.html', username=global_username, books=books, firstname=user.firstname, lastname=user.lastname )
 
 @app.route('/myreadinglist',methods=['GET', 'POST'])
 @login_required
 def myreadinglist():
-    # object username
-    #print(load_user(user_id_print).username) -- gives me the id and username of logged person
-    #books = BookStore.query.all()
-    #print(books)
-    #user = User.query.filter_by(id=global_user_id).first()
-    # remove the flash later
-    #flash(f'Welcome back {user.firstname} {user.lastname}!!!')
-    #print(user.firstname)
     readlist_object = ReadList.query.filter_by(user_id=global_user_id).all()
     readlistSearch_object = ReadListSearch.query.filter_by(user_id=global_user_id).all()
     #print(cart_list)
@@ -216,19 +189,16 @@ def myreadinglist():
 @login_required
 def add_to_readingList(id):
     #print(id, 'book id')
-    #print('something gioing on here')
-    #print(user_id_print, "user id")
-    
     book_object = ReadList.query.filter_by(user_id=global_user_id).all()
     print(book_object, "book")
     book_ids = list(map(lambda x: (x.book_id), book_object))
     if id not in book_ids: # check if it already existes
         print("adding material")
         add_material_to_cart = ReadList(user_id=global_user_id, book_id=id)
-        #db.create_all() # create the table
+        db.create_all() # create the table
         db.session.add(add_material_to_cart)
         db.session.commit()
-        print("added sucessfully!")
+        #print("added sucessfully!")
         flash('Successfully added to cart!')
     else:
         flash('The item is already in the cart!')
@@ -249,18 +219,6 @@ def remove_from_readinglist(id):
 @app.route('/searchbook',methods=['GET', 'POST'])
 @login_required
 def searchbook():
-    # object username
-    #print(load_user(user_id_print).username) -- gives me the id and username of logged person
-    #books = BookStore.query.all()
-    #print(books)
-    #user = User.query.filter_by(id=global_user_id).first()
-    # remove the flash later
-    #flash(f'Welcome back {user.firstname} {user.lastname}!!!')
-    #print(user.firstname)
-    #readlist_object = ReadList.query.filter_by(user_id=global_user_id).all()
-    #print(cart_list)
-    #books_list = []
-    #print(readlist_object)
     if store and count:
         store1 = store
         count1 = count
@@ -339,12 +297,6 @@ def searchbookBtn():
         dict_store['img_url'] = img_url
         list_json.append(dict_store)
         dict_store = {}
-    
-    #print(response_data['docs'][0])
-    #print(response_data['docs'][0]['title'])
-    """for i in list_json:
-        print(i['isbn'])"""
-    
     #print(isbn)
     return render_template('searchbook.html', username=global_username, store=list_json, count=result_count)
 
@@ -364,7 +316,7 @@ def addtoRlistFromSearch(isbn, book_title, book_subject):
     if isbn not in book_ids: # check if it already existes
         print("adding material")
         add_material_to_cart = ReadListSearch(user_id=global_user_id, isbn=isbn, title=book_title, subject=book_subject)
-        #db.create_all() # create the table
+        db.create_all() # create the table
         db.session.add(add_material_to_cart)
         db.session.commit()
         print("added sucessfully!")
