@@ -1,6 +1,6 @@
 # online_book_store
+# Live demo [here](https://bookstore4u.herokuapp.com/)
 
-## Live demo [here](https://bookstore4u.herokuapp.com/)
 Deployed on heroku with a free account.
 
 This web app is built entirely on flask and helper third party libraries.
