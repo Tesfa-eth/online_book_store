@@ -16,4 +16,5 @@ Flask forms - Log in, sign up and search forms. Has validators as well.
 
 ![chrome_qj0rcfDpP5](https://user-images.githubusercontent.com/62855279/147797284-31c6eeb1-037d-4419-8d8a-8f93401a3deb.jpg)
 
-https://i.imgur.com/bxESZxM.png
+
+<img width="960" alt="chrome_fndjYCgKix" src="https://user-images.githubusercontent.com/62855279/147797327-2ac1dce2-1b6b-4d5c-9432-0ac24df2629e.png">
