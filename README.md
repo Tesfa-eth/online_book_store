@@ -1,13 +1,15 @@
 # Online Book Store
-Deployed on heroku with a free account.
+Built entirely on flask, helper third party libraries and Open Library API, this website has functional user log in and registration. Users can search book by title and can add books to their reading list.
 
-This web app is built entirely on flask and helper third party libraries.
+Deployed on heroku with a free account.
 
 Flask login -  log in validation, authentication and session.
 
 Flask_sqlalchemy -  extension for Flask that [adds support](https://flask-sqlalchemy.palletsprojects.com/en/2.x/) for SQLAlchemy to an application.
 
 Flask forms - Log in, sign up and search forms. Has validators as well.
+
+Open Book API
 
 [Flask bykrpt](https://flask-bcrypt.readthedocs.io/en/latest/)
 
