@@ -1,4 +1,4 @@
-# online_book_store
+# Online Book Store
 Deployed on heroku with a free account.
 
 This web app is built entirely on flask and helper third party libraries.
