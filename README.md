@@ -9,9 +9,9 @@ Flask_sqlalchemy -  extension for Flask that [adds support](https://flask-sqlalc
 
 Flask forms - Log in, sign up and search forms. Has validators as well.
 
-Open Book API
-
 [Flask bykrpt](https://flask-bcrypt.readthedocs.io/en/latest/)
+
+Open Book API
 
 # Live demo [here](https://bookstore4u.herokuapp.com/)
 
@@ -20,3 +20,5 @@ Open Book API
 
 
 <img width="960" alt="chrome_fndjYCgKix" src="https://user-images.githubusercontent.com/62855279/147797327-2ac1dce2-1b6b-4d5c-9432-0ac24df2629e.png">
+
+<img width="960" alt="chrome_nJjA6vWsP3" src="https://user-images.githubusercontent.com/62855279/149235341-d868c7f6-5d0f-42c1-8bb9-1be2b020fdfd.png">
